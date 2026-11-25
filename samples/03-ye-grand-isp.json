@@ -1,0 +1,68 @@
+{
+  "id": "03-ye-grand-isp",
+  "file": "samples/03-ye-grand-isp.wav",
+  "voice_name": "No Reference (Default, 4-chunk voice-consistent chain)",
+  "text": "Ah, ladies and gentlemen, a most warm welcome to Ye Grand Internet Service Company—where modern marvels meet the finest customer care! If you'll kindly lend me your ear: Should your internet be on the fritz, press 1, and we shall mend it with haste! If your bill requires settling, press 2, for we do so appreciate a prompt patron. Craving unparalleled speed? Press 3, and we shall equip you with the swiftest connection of the age! Wishing to speak with a live representative? Press 0, and we shall connect you without delay! We thank you for your time and patronage—may your browsing be ever smooth and your signals ever strong! Ta-ta for now!",
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "top_k": 50,
+  "max_new_tokens": 1024,
+  "greedy": false,
+  "auto_retry": true,
+  "sample_rate": 44100,
+  "inter_chunk_pause_ms": 350,
+  "duration_sec": 50.93,
+  "raw_chunks_duration_sec": 49.88,
+  "elapsed_sec": 39.64,
+  "client_wall_sec": 39.96,
+  "rtf": 0.778,
+  "total_code_frames": 1074,
+  "remote_startup_sec": 3.64,
+  "hardware": "NVIDIA GeForce RTX 3060 12GB (NixOS, bfloat16)",
+  "chunks": [
+    {
+      "index": 1,
+      "mode": "zero-shot",
+      "text": "Ah, ladies and gentlemen, a most warm welcome to Ye Grand Internet Service Company—where modern marvels meet the finest customer care!",
+      "seed": 1898844075,
+      "duration_sec": 9.71,
+      "elapsed_sec": 7.79,
+      "rtf": 0.803,
+      "code_frames": 209,
+      "finished": true
+    },
+    {
+      "index": 2,
+      "mode": "voice-clone (chunk 1)",
+      "text": "If you'll kindly lend me your ear: Should your internet be on the fritz, press 1, and we shall mend it with haste! If your bill requires settling, press 2, for we do so appreciate a prompt patron.",
+      "seed": 1906309985,
+      "duration_sec": 15.65,
+      "elapsed_sec": 12.45,
+      "rtf": 0.795,
+      "code_frames": 337,
+      "finished": true
+    },
+    {
+      "index": 3,
+      "mode": "voice-clone (chunk 1)",
+      "text": "Craving unparalleled speed? Press 3, and we shall equip you with the swiftest connection of the age! Wishing to speak with a live representative? Press 0, and we shall connect you without delay!",
+      "seed": 1175645196,
+      "duration_sec": 15.0,
+      "elapsed_sec": 11.68,
+      "rtf": 0.779,
+      "code_frames": 323,
+      "finished": true
+    },
+    {
+      "index": 4,
+      "mode": "voice-clone (chunk 1)",
+      "text": "We thank you for your time and patronage—may your browsing be ever smooth and your signals ever strong! Ta-ta for now!",
+      "seed": 1610243565,
+      "duration_sec": 9.52,
+      "elapsed_sec": 7.72,
+      "rtf": 0.811,
+      "code_frames": 205,
+      "finished": true
+    }
+  ]
+}

@@ -12,13 +12,14 @@ One-click **Web UI**, **REST API**, **standalone CLI**, and **NixOS systemd modu
 
 ## Showcase Audio
 
-| Sample | Mode | Duration | RTF (RTX 3060 12GB) | Files |
+| Sample | Mode | Duration | Generation Time / RTF (RTX 3060 12GB) | Files |
 | :--- | :--- | :--- | :--- | :--- |
-| **01 — Default Voice** | Zero-shot (no reference) | `15.19s` | `0.775` (`11.77s`) | [`01-zero-shot.wav`](./samples/01-zero-shot.wav) · [`01-zero-shot.json`](./samples/01-zero-shot.json) |
-| **02 — Voice Clone** | Zero-shot voice clone | `14.91s` | `0.817` (`12.17s`) | [`02-voice-clone.wav`](./samples/02-voice-clone.wav) · [`02-voice-clone.json`](./samples/02-voice-clone.json) |
+| **01 — Default Voice** | Zero-shot (no reference) | `15.19s` | `11.77s` (`RTF 0.775`) | [`01-zero-shot.wav`](./samples/01-zero-shot.wav) · [`01-zero-shot.json`](./samples/01-zero-shot.json) |
+| **02 — Voice Clone** | Zero-shot voice clone | `14.91s` | `12.17s` (`RTF 0.817`) | [`02-voice-clone.wav`](./samples/02-voice-clone.wav) · [`02-voice-clone.json`](./samples/02-voice-clone.json) |
+| **03 — Ye Grand ISP (IVR)** | 4-chunk voice-consistent (676 chars) | `50.93s` | `39.64s` (`RTF 0.778`) | [`03-ye-grand-isp.wav`](./samples/03-ye-grand-isp.wav) · [`03-ye-grand-isp.json`](./samples/03-ye-grand-isp.json) |
 | **Reference Clip** | 5.48s source voice | `5.48s` | — | [`reference-chicanery.wav`](./samples/reference-chicanery.wav) |
 
-See [`samples/README.md`](./samples/README.md) for exact prompts, transcripts, seeds, and CLI reproduction commands.
+Remote cold-start + SSH tunnel startup took `3.64s`. See [`samples/README.md`](./samples/README.md) for exact prompts, transcripts, seeds, per-chunk breakdown, and CLI reproduction commands.
 
 ---
 
