@@ -1,0 +1,21 @@
+{
+  "id": "02-voice-clone",
+  "file": "samples/02-voice-clone.wav",
+  "voice_name": "Quick Clone (reference-chicanery.wav)",
+  "reference_audio": "samples/reference-chicanery.wav",
+  "reference_transcript": "And I saved him. And I shouldn't have. I took him into my own firm.",
+  "text": "You think this is something? You think this is bad? This-this chicanery! He unlocked the GPU firmware, built a NixOS flake, and ran a zero-shot voice clone right over SSH! And it sounds completely real!",
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "top_k": 50,
+  "max_new_tokens": 1024,
+  "seed": 1165230192,
+  "greedy": false,
+  "auto_retry": true,
+  "duration_sec": 14.91,
+  "elapsed_sec": 12.17,
+  "rtf": 0.817,
+  "code_frames": 321,
+  "sample_rate": 44100,
+  "hardware": "NVIDIA GeForce RTX 3060 12GB (NixOS, bfloat16)"
+}

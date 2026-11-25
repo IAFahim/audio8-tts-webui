@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audio8-TTS Realistic-Air (0.6B)</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c0e13;
+      --panel: #141821;
+      --panel-alt: #1a202c;
+      --border: #273042;
+      --text: #e7ecf4;
+      --muted: #93a1b8;
+      --accent: #5b9cff;
+      --accent-hover: #75acff;
+      --good: #34d399;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --radius: 12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 20px 18px 40px;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .title-block h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .title-block .sub {
+      margin-top: 3px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+    .dot.ok { background: var(--good); }
+    .dot.busy { background: var(--warn); }
+    .dot.err { background: var(--bad); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      font-weight: 650;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    textarea, input[type="text"], input[type="number"], select {
+      width: 100%;
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 9px 11px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 98px;
+      line-height: 1.5;
+    }
+    textarea:focus, input:focus, select:focus {
+      outline: 2px solid rgba(91, 156, 255, 0.35);
+      border-color: var(--accent);
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .row-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .chip {
+      background: var(--panel-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent-hover); }
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: var(--panel-alt);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .seg-btn {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      padding: 7px 8px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .seg-btn.active {
+      background: var(--accent);
+      color: #081121;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #081121;
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+    button.primary:disabled { opacity: 0.55; cursor: not-allowed; }
+    button.secondary, a.btn-link {
+      background: var(--panel-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    button.secondary:hover:not(:disabled), a.btn-link:hover { border-color: var(--accent); }
+    button.danger {
+      background: rgba(248, 113, 113, 0.12);
+      color: var(--bad);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.record-active {
+      background: rgba(248, 113, 113, 0.22);
+      border-color: var(--bad);
+      color: #fecaca;
+    }
+    details {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: rgba(26, 32, 44, 0.45);
+      padding: 10px 12px;
+    }
+    summary {
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      user-select: none;
+    }
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    @media (max-width: 600px) {
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+    .range-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .range-row input[type="range"] { flex: 1; }
+    .range-val {
+      font-family: var(--mono);
+      font-size: 12px;
+      min-width: 44px;
+      text-align: right;
+      color: var(--text);
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .checkbox-row input { width: auto; }
+    .alert {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid;
+    }
+    .alert.err {
+      background: rgba(248, 113, 113, 0.1);
+      border-color: rgba(248, 113, 113, 0.35);
+      color: #fecaca;
+    }
+    .alert.warn {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: rgba(251, 191, 36, 0.35);
+      color: #fde68a;
+    }
+    .result-box {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+    }
+    audio {
+      width: 100%;
+      height: 38px;
+      margin-top: 6px;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 440px;
+      overflow-y: auto;
+    }
+    .item {
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      border-radius: 9px;
+      padding: 10px 12px;
+    }
+    .item-title {
+      font-size: 13px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+    .item-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+      word-break: break-word;
+    }
+    .hidden { display: none !important; }
+    .mt-10 { margin-top: 10px; }
+    .mt-12 { margin-top: 12px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title-block">
+      <h1>Audio8-TTS Realistic-Air (0.6B)</h1>
+      <div class="sub">Full-precision PyTorch DualAR speech synthesis &amp; zero-shot voice cloning</div>
+    </div>
+    <div class="badges">
+      <span class="badge"><span id="statusDot" class="dot"></span><span id="statusText">Connecting...</span></span>
+      <span class="badge" id="deviceBadge">GPU: --</span>
+      <span class="badge" id="vramBadge">VRAM: --</span>
+      <span class="badge" id="srBadge">44.1 kHz</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="col">
+      <section class="card">
+        <h2>
+          <span>Text-to-Speech Synthesizer</span>
+          <span id="charCount" class="muted">0 chars (sweet spot &le; 500)</span>
+        </h2>
+
+        <label for="ttsText">Target Text</label>
+        <textarea id="ttsText" placeholder="Type or paste what you want Audio8-TTS to speak...">Welcome to Audio8 TTS Realistic Air. This is a clean zero-shot speech synthesis test running locally on your GPU.</textarea>
+
+        <div class="chips">
+          <button type="button" class="chip" data-sample="Welcome to Audio8 TTS Realistic Air. This is a clean zero-shot speech synthesis test running locally on your GPU.">English Intro</button>
+          <button type="button" class="chip" data-sample="Good morning! Let's walk through the inspection checklist together before we start the build.">Conversational</button>
+          <button type="button" class="chip" data-sample="你好，欢迎使用 Audio8 TTS 语音合成系统。今天天气真不错，我们开始测试吧。">Chinese Sample</button>
+          <button type="button" class="chip" data-sample="Actually, wait—let me double check those numbers first! Yes, everything looks solid and ready to ship.">Expressive</button>
+        </div>
+
+        <div class="mt-12">
+          <label>Voice Mode</label>
+          <div class="segmented" role="tablist">
+            <button type="button" class="seg-btn active" data-mode="none">No Reference</button>
+            <button type="button" class="seg-btn" data-mode="saved">Saved Voice</button>
+            <button type="button" class="seg-btn" data-mode="quick">Quick Clone</button>
+          </div>
+        </div>
+
+        <div id="modeSavedPanel" class="hidden">
+          <label for="savedVoiceSelect">Saved Voice Profile</label>
+          <select id="savedVoiceSelect"></select>
+          <div id="savedVoicePreview" class="mt-10 hidden">
+            <div class="muted" id="savedVoiceTranscript"></div>
+            <audio id="savedVoiceAudio" controls></audio>
+          </div>
+        </div>
+
+        <div id="modeQuickPanel" class="hidden">
+          <div class="row-between">
+            <label style="margin:0;">Quick-Clone Reference Audio (3-15s recommended, max 60s)</label>
+            <span id="quickMicHint" class="muted"></span>
+          </div>
+          <div class="row mt-10">
+            <input id="quickAudioFile" type="file" accept=".wav,.mp3,.flac,.ogg,.m4a,.webm,audio/*" style="flex:1;min-width:200px;">
+            <button type="button" id="quickRecBtn" class="secondary">Record Mic</button>
+          </div>
+          <div id="quickAudioPreviewWrap" class="mt-10 hidden">
+            <div class="row-between">
+              <span id="quickAudioLabel" class="muted"></span>
+              <button type="button" id="quickClearBtn" class="danger">Clear</button>
+            </div>
+            <audio id="quickAudioPreview" controls></audio>
+          </div>
+          <div class="mt-10">
+            <label for="quickRefText">Exact Reference Transcript (required)</label>
+            <input id="quickRefText" type="text" placeholder="Type the exact words spoken in the reference clip...">
+          </div>
+        </div>
+
+        <details>
+          <summary>Sampling &amp; Generation Settings</summary>
+          <div class="settings-grid">
+            <div>
+              <label for="tempRange">Temperature</label>
+              <div class="range-row">
+                <input id="tempRange" type="range" min="0.05" max="1.5" step="0.05" value="0.7">
+                <span id="tempVal" class="range-val">0.70</span>
+              </div>
+            </div>
+            <div>
+              <label for="topPRange">Top-P</label>
+              <div class="range-row">
+                <input id="topPRange" type="range" min="0.05" max="1.0" step="0.05" value="0.9">
+                <span id="topPVal" class="range-val">0.90</span>
+              </div>
+            </div>
+            <div>
+              <label for="topKInput">Top-K (0 = disabled)</label>
+              <input id="topKInput" type="number" min="0" max="200" step="1" value="50">
+            </div>
+            <div>
+              <label for="maxTokensInput">Max New Tokens (64-2000)</label>
+              <input id="maxTokensInput" type="number" min="64" max="2000" step="32" value="1024">
+            </div>
+            <div>
+              <label for="seedInput">Seed (empty = random)</label>
+              <div class="row">
+                <input id="seedInput" type="number" min="0" step="1" placeholder="Random" style="flex:1;">
+                <button type="button" id="randSeedBtn" class="secondary">Clear</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-end;gap:8px;">
+              <label class="checkbox-row"><input id="greedyChk" type="checkbox"> Greedy decoding (deterministic)</label>
+              <label class="checkbox-row"><input id="autoRetryChk" type="checkbox" checked> Auto-retry up to 2000 tokens if no EOS</label>
+            </div>
+          </div>
+          <div class="row mt-12">
+            <button type="button" id="resetSettingsBtn" class="secondary">Reset Defaults</button>
+          </div>
+        </details>
+
+        <div class="row-between mt-12">
+          <div class="row">
+            <button type="button" id="generateBtn" class="primary">Generate Speech</button>
+            <span id="genTimer" class="muted"></span>
+          </div>
+          <span class="muted">GPU jobs run sequentially</span>
+        </div>
+
+        <div id="synthError" class="alert err hidden"></div>
+        <div id="synthWarn" class="alert warn hidden"></div>
+
+        <div id="resultBox" class="result-box hidden">
+          <div class="row-between">
+            <strong style="font-size:13px;">Latest Output</strong>
+            <a id="resultDownload" class="btn-link" href="#" download>Download WAV</a>
+          </div>
+          <audio id="resultAudio" controls></audio>
+          <div id="resultMetrics" class="badges mt-10"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="card">
+        <h2>
+          <span>Voice Library</span>
+          <span id="voiceCountBadge" class="muted">0 saved</span>
+        </h2>
+
+        <label for="newVoiceName">New Voice Name</label>
+        <input id="newVoiceName" type="text" placeholder="e.g. Studio Narrator">
+
+        <div class="mt-10">
+          <label for="newVoiceTranscript">Exact Transcript of Reference Clip</label>
+          <input id="newVoiceTranscript" type="text" placeholder="Exact spoken text (punctuation helps prosody)...">
+        </div>
+
+        <div class="mt-10">
+          <div class="row-between">
+            <label style="margin:0;">Audio File or Mic Recording (3-15s clean speech)</label>
+            <span id="libMicHint" class="muted"></span>
+          </div>
+          <div class="row mt-10">
+            <input id="newVoiceFile" type="file" accept=".wav,.mp3,.flac,.ogg,.m4a,.webm,audio/*" style="flex:1;min-width:170px;">
+            <button type="button" id="libRecBtn" class="secondary">Record Mic</button>
+          </div>
+        </div>
+
+        <div id="libPreviewWrap" class="mt-10 hidden">
+          <div class="row-between">
+            <span id="libAudioLabel" class="muted"></span>
+            <button type="button" id="libClearBtn" class="danger">Clear</button>
+          </div>
+          <audio id="libAudioPreview" controls></audio>
+        </div>
+
+        <div class="row mt-12">
+          <button type="button" id="saveVoiceBtn" class="secondary">Save Voice Profile</button>
+        </div>
+        <div id="voiceError" class="alert err hidden"></div>
+
+        <div id="voicesList" class="list mt-12"></div>
+      </section>
+
+      <section class="card">
+        <h2>
+          <span>Recent Generations</span>
+          <span id="outputsCountBadge" class="muted">0 saved</span>
+        </h2>
+        <div id="outputsList" class="list"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  let voiceMode = "none";
+  let quickRecordedBlob = null;
+  let libRecordedBlob = null;
+  let activeRecorder = null;
+  let activeStream = null;
+  let activeTarget = null;
+  let genTimerHandle = null;
+  let cachedVoices = [];
+
+  const canRecordMic = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  if (!canRecordMic) {
+    const msg = `Mic recording requires http://localhost:${window.location.port || 8999} (secure origin)`;
+    $("quickMicHint").textContent = msg;
+    $("libMicHint").textContent = msg;
+    $("quickRecBtn").disabled = true;
+    $("libRecBtn").disabled = true;
+  }
+
+  function updateCharCount() {
+    const len = $("ttsText").value.length;
+    $("charCount").textContent = `${len} chars (sweet spot <= 500)`;
+    $("charCount").style.color = len > 500 ? "var(--warn)" : "var(--muted)";
+  }
+  $("ttsText").addEventListener("input", updateCharCount);
+  updateCharCount();
+
+  document.querySelectorAll(".chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $("ttsText").value = btn.dataset.sample || "";
+      updateCharCount();
+    });
+  });
+
+  function setVoiceMode(mode) {
+    voiceMode = mode;
+    document.querySelectorAll(".seg-btn").forEach((b) => {
+      b.classList.toggle("active", b.dataset.mode === mode);
+    });
+    $("modeSavedPanel").classList.toggle("hidden", mode !== "saved");
+    $("modeQuickPanel").classList.toggle("hidden", mode !== "quick");
+  }
+  document.querySelectorAll(".seg-btn").forEach((b) => {
+    b.addEventListener("click", () => setVoiceMode(b.dataset.mode));
+  });
+
+  $("tempRange").addEventListener("input", () => {
+    $("tempVal").textContent = parseFloat($("tempRange").value).toFixed(2);
+  });
+  $("topPRange").addEventListener("input", () => {
+    $("topPVal").textContent = parseFloat($("topPRange").value).toFixed(2);
+  });
+  $("randSeedBtn").addEventListener("click", () => {
+    $("seedInput").value = "";
+  });
+  $("resetSettingsBtn").addEventListener("click", () => {
+    $("tempRange").value = "0.7";
+    $("tempVal").textContent = "0.70";
+    $("topPRange").value = "0.9";
+    $("topPVal").textContent = "0.90";
+    $("topKInput").value = "50";
+    $("maxTokensInput").value = "1024";
+    $("seedInput").value = "";
+    $("greedyChk").checked = false;
+    $("autoRetryChk").checked = true;
+  });
+
+  function showAlert(id, text) {
+    const el = $(id);
+    if (!text) {
+      el.classList.add("hidden");
+      el.textContent = "";
+    } else {
+      el.textContent = text;
+      el.classList.remove("hidden");
+    }
+  }
+
+  function stopActiveRecorder() {
+    if (activeRecorder && activeRecorder.state !== "inactive") {
+      activeRecorder.stop();
+    }
+    if (activeStream) {
+      activeStream.getTracks().forEach((t) => t.stop());
+      activeStream = null;
+    }
+    $("quickRecBtn").textContent = "Record Mic";
+    $("quickRecBtn").classList.remove("record-active");
+    $("libRecBtn").textContent = "Record Mic";
+    $("libRecBtn").classList.remove("record-active");
+    activeRecorder = null;
+    activeTarget = null;
+  }
+
+  async function toggleRecorder(target) {
+    if (!canRecordMic) return;
+    if (activeRecorder) {
+      const wasSame = activeTarget === target;
+      stopActiveRecorder();
+      if (wasSame) return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const chunks = [];
+      const rec = new MediaRecorder(stream);
+      activeRecorder = rec;
+      activeStream = stream;
+      activeTarget = target;
+
+      const btn = target === "quick" ? $("quickRecBtn") : $("libRecBtn");
+      btn.textContent = "Stop Recording";
+      btn.classList.add("record-active");
+
+      rec.ondataavailable = (ev) => {
+        if (ev.data && ev.data.size > 0) chunks.push(ev.data);
+      };
+      rec.onstop = () => {
+        const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+        const url = URL.createObjectURL(blob);
+        if (target === "quick") {
+          quickRecordedBlob = blob;
+          $("quickAudioFile").value = "";
+          $("quickAudioLabel").textContent = `Mic recording (${(blob.size / 1024).toFixed(1)} KB)`;
+          $("quickAudioPreview").src = url;
+          $("quickAudioPreviewWrap").classList.remove("hidden");
+        } else {
+          libRecordedBlob = blob;
+          $("newVoiceFile").value = "";
+          $("libAudioLabel").textContent = `Mic recording (${(blob.size / 1024).toFixed(1)} KB)`;
+          $("libAudioPreview").src = url;
+          $("libPreviewWrap").classList.remove("hidden");
+        }
+        stream.getTracks().forEach((t) => t.stop());
+        if (activeRecorder === rec) {
+          activeRecorder = null;
+          activeStream = null;
+          activeTarget = null;
+          btn.textContent = "Record Mic";
+          btn.classList.remove("record-active");
+        }
+      };
+      rec.start();
+    } catch (err) {
+      showAlert(target === "quick" ? "synthError" : "voiceError", `Mic error: ${err.message || err}`);
+      stopActiveRecorder();
+    }
+  }
+
+  $("quickRecBtn").addEventListener("click", () => toggleRecorder("quick"));
+  $("libRecBtn").addEventListener("click", () => toggleRecorder("lib"));
+
+  $("quickAudioFile").addEventListener("change", () => {
+    const f = $("quickAudioFile").files[0];
+    if (f) {
+      quickRecordedBlob = null;
+      $("quickAudioLabel").textContent = `${f.name} (${(f.size / 1024).toFixed(1)} KB)`;
+      $("quickAudioPreview").src = URL.createObjectURL(f);
+      $("quickAudioPreviewWrap").classList.remove("hidden");
+    }
+  });
+  $("quickClearBtn").addEventListener("click", () => {
+    quickRecordedBlob = null;
+    $("quickAudioFile").value = "";
+    $("quickAudioPreview").removeAttribute("src");
+    $("quickAudioPreviewWrap").classList.add("hidden");
+  });
+
+  $("newVoiceFile").addEventListener("change", () => {
+    const f = $("newVoiceFile").files[0];
+    if (f) {
+      libRecordedBlob = null;
+      $("libAudioLabel").textContent = `${f.name} (${(f.size / 1024).toFixed(1)} KB)`;
+      $("libAudioPreview").src = URL.createObjectURL(f);
+      $("libPreviewWrap").classList.remove("hidden");
+    }
+  });
+  $("libClearBtn").addEventListener("click", () => {
+    libRecordedBlob = null;
+    $("newVoiceFile").value = "";
+    $("libAudioPreview").removeAttribute("src");
+    $("libPreviewWrap").classList.add("hidden");
+  });
+
+  function updateSavedVoicePreview() {
+    const id = $("savedVoiceSelect").value;
+    const match = cachedVoices.find((v) => v.id === id);
+    if (!match) {
+      $("savedVoicePreview").classList.add("hidden");
+      return;
+    }
+    $("savedVoiceTranscript").textContent = `Transcript (${match.duration_sec}s): "${match.reference_text}"`;
+    $("savedVoiceAudio").src = `${match.audio_url}?t=${Date.now()}`;
+    $("savedVoicePreview").classList.remove("hidden");
+  }
+  $("savedVoiceSelect").addEventListener("change", updateSavedVoicePreview);
+
+  async function refreshHealth() {
+    try {
+      const res = await fetch("/api/health", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const h = await res.json();
+      const dot = $("statusDot");
+      dot.className = "dot " + (h.ready ? (h.busy ? "busy" : "ok") : "err");
+      $("statusText").textContent = h.ready ? (h.busy ? "Generating..." : "Ready") : "Loading / Error";
+      $("deviceBadge").textContent = `${h.gpu_name || h.device} (${h.dtype})`;
+      if (h.vram_total_mb > 0) {
+        $("vramBadge").textContent = `VRAM ${Math.round(h.vram_allocated_mb)}/${Math.round(h.vram_total_mb)} MiB`;
+      } else {
+        $("vramBadge").textContent = "CPU Mode";
+      }
+      $("srBadge").textContent = `${(h.sample_rate / 1000).toFixed(1)} kHz`;
+    } catch {
+      $("statusDot").className = "dot err";
+      $("statusText").textContent = "Offline";
+    }
+  }
+
+  async function refreshVoices() {
+    const res = await fetch("/api/voices", { cache: "no-store" });
+    if (!res.ok) return;
+    cachedVoices = await res.json();
+    $("voiceCountBadge").textContent = `${cachedVoices.length} saved`;
+
+    const prev = $("savedVoiceSelect").value;
+    $("savedVoiceSelect").innerHTML = "";
+    if (cachedVoices.length === 0) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "-- No saved voices yet --";
+      $("savedVoiceSelect").appendChild(opt);
+    } else {
+      cachedVoices.forEach((v) => {
+        const opt = document.createElement("option");
+        opt.value = v.id;
+        opt.textContent = `${v.name} (${v.duration_sec}s)`;
+        $("savedVoiceSelect").appendChild(opt);
+      });
+      if (prev && cachedVoices.some((v) => v.id === prev)) {
+        $("savedVoiceSelect").value = prev;
+      }
+    }
+    updateSavedVoicePreview();
+
+    const list = $("voicesList");
+    list.innerHTML = "";
+    if (cachedVoices.length === 0) {
+      list.innerHTML = `<div class="muted">Save a 3-15s clean speech sample with its exact transcript to clone voices.</div>`;
+      return;
+    }
+    cachedVoices.forEach((v) => {
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="row-between">
+          <div class="item-title"></div>
+          <div class="row">
+            <button type="button" class="secondary use-btn">Use</button>
+            <button type="button" class="danger del-btn">Delete</button>
+          </div>
+        </div>
+        <div class="item-sub"></div>
+        <audio controls preload="none"></audio>
+      `;
+      el.querySelector(".item-title").textContent = `${v.name} (${v.duration_sec}s)`;
+      el.querySelector(".item-sub").textContent = `"${v.reference_text}"`;
+      el.querySelector("audio").src = v.audio_url;
+      el.querySelector(".use-btn").addEventListener("click", () => {
+        setVoiceMode("saved");
+        $("savedVoiceSelect").value = v.id;
+        updateSavedVoicePreview();
+      });
+      el.querySelector(".del-btn").addEventListener("click", async () => {
+        await fetch(`/api/voices/${encodeURIComponent(v.id)}`, { method: "DELETE" });
+        await refreshVoices();
+      });
+      list.appendChild(el);
+    });
+  }
+
+  async function refreshOutputs() {
+    const res = await fetch("/api/outputs", { cache: "no-store" });
+    if (!res.ok) return;
+    const outputs = await res.json();
+    $("outputsCountBadge").textContent = `${outputs.length} saved`;
+    const list = $("outputsList");
+    list.innerHTML = "";
+    if (outputs.length === 0) {
+      list.innerHTML = `<div class="muted">Generated audio clips will appear here.</div>`;
+      return;
+    }
+    outputs.forEach((o) => {
+      const el = document.createElement("div");
+      el.className = "item";
+      el.innerHTML = `
+        <div class="row-between">
+          <div class="item-title"></div>
+          <div class="row">
+            <a class="btn-link" href="${o.audio_url}?download=1" download>WAV</a>
+            <button type="button" class="secondary reuse-btn">Reuse</button>
+            <button type="button" class="danger del-btn">Del</button>
+          </div>
+        </div>
+        <div class="item-sub"></div>
+        <audio controls preload="none"></audio>
+      `;
+      el.querySelector(".item-title").textContent = `${o.voice_name} • ${o.duration_sec}s (RTF ${o.rtf}, seed ${o.seed})`;
+      el.querySelector(".item-sub").textContent = o.text;
+      el.querySelector("audio").src = o.audio_url;
+      el.querySelector(".reuse-btn").addEventListener("click", () => {
+        $("ttsText").value = o.text || "";
+        updateCharCount();
+        $("seedInput").value = o.seed ?? "";
+        $("tempRange").value = o.temperature ?? 0.7;
+        $("tempVal").textContent = Number(o.temperature ?? 0.7).toFixed(2);
+        $("topPRange").value = o.top_p ?? 0.9;
+        $("topPVal").textContent = Number(o.top_p ?? 0.9).toFixed(2);
+        $("topKInput").value = o.top_k ?? 50;
+        $("maxTokensInput").value = o.max_new_tokens ?? 1024;
+        $("greedyChk").checked = !!o.greedy;
+        $("autoRetryChk").checked = o.auto_retry !== false;
+      });
+      el.querySelector(".del-btn").addEventListener("click", async () => {
+        await fetch(`/api/outputs/${encodeURIComponent(o.id)}`, { method: "DELETE" });
+        await refreshOutputs();
+      });
+      list.appendChild(el);
+    });
+  }
+
+  $("saveVoiceBtn").addEventListener("click", async () => {
+    showAlert("voiceError", "");
+    const name = $("newVoiceName").value.trim();
+    const transcript = $("newVoiceTranscript").value.trim();
+    const file = $("newVoiceFile").files[0] || libRecordedBlob;
+
+    if (!name) return showAlert("voiceError", "Enter a voice name.");
+    if (!transcript) return showAlert("voiceError", "Enter the exact transcript spoken in the reference clip.");
+    if (!file) return showAlert("voiceError", "Choose an audio file or record from microphone.");
+
+    const fd = new FormData();
+    fd.append("name", name);
+    fd.append("reference_text", transcript);
+    fd.append("audio", file, file.name || "mic-recording.webm");
+
+    $("saveVoiceBtn").disabled = true;
+    try {
+      const res = await fetch("/api/voices", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+      $("newVoiceName").value = "";
+      $("newVoiceTranscript").value = "";
+      $("libClearBtn").click();
+      await refreshVoices();
+    } catch (err) {
+      showAlert("voiceError", err.message || String(err));
+    } finally {
+      $("saveVoiceBtn").disabled = false;
+    }
+  });
+
+  $("generateBtn").addEventListener("click", async () => {
+    showAlert("synthError", "");
+    showAlert("synthWarn", "");
+
+    const text = $("ttsText").value.trim();
+    if (!text) return showAlert("synthError", "Please enter text to synthesize.");
+
+    const fd = new FormData();
+    fd.append("text", text);
+    fd.append("temperature", $("tempRange").value);
+    fd.append("top_p", $("topPRange").value);
+    fd.append("top_k", $("topKInput").value);
+    fd.append("max_new_tokens", $("maxTokensInput").value);
+    fd.append("greedy", $("greedyChk").checked ? "true" : "false");
+    fd.append("auto_retry", $("autoRetryChk").checked ? "true" : "false");
+
+    const seed = $("seedInput").value.trim();
+    if (seed) fd.append("seed", seed);
+
+    if (voiceMode === "saved") {
+      const vid = $("savedVoiceSelect").value;
+      if (!vid) return showAlert("synthError", "Please save or select a voice profile first, or switch to No Reference.");
+      fd.append("voice_id", vid);
+    } else if (voiceMode === "quick") {
+      const file = $("quickAudioFile").files[0] || quickRecordedBlob;
+      const refText = $("quickRefText").value.trim();
+      if (!file) return showAlert("synthError", "Upload or record a reference clip for Quick Clone.");
+      if (!refText) return showAlert("synthError", "Enter the exact reference transcript for Quick Clone.");
+      fd.append("reference_audio", file, file.name || "quick-clone.webm");
+      fd.append("reference_text", refText);
+    }
+
+    $("generateBtn").disabled = true;
+    const t0 = performance.now();
+    $("genTimer").textContent = "0.0s elapsed...";
+    genTimerHandle = setInterval(() => {
+      const s = (performance.now() - t0) / 1000;
+      const warn = s > 20 ? " (long generation — max_seq_len=2048)" : "";
+      $("genTimer").textContent = `${s.toFixed(1)}s elapsed...${warn}`;
+    }, 100);
+
+    try {
+      const res = await fetch("/api/synthesize", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+
+      if (!data.finished) {
+        showAlert("synthWarn", "Generation reached token limit without EOS (clip may be truncated). Try shorter text or increase Max New Tokens.");
+      }
+
+      $("resultAudio").src = `${data.audio_url}?t=${Date.now()}`;
+      $("resultDownload").href = `${data.audio_url}?download=1`;
+      $("resultMetrics").innerHTML = `
+        <span class="badge">Duration: ${data.duration_sec}s</span>
+        <span class="badge">Gen Time: ${data.elapsed_sec}s</span>
+        <span class="badge">RTF: ${data.rtf}</span>
+        <span class="badge">Frames: ${data.code_frames}</span>
+        <span class="badge">EOS: ${data.finished ? "Yes" : "No"}</span>
+        <span class="badge">Seed: ${data.seed}</span>
+      `;
+      $("resultBox").classList.remove("hidden");
+      $("resultAudio").play().catch(() => {});
+      await Promise.all([refreshOutputs(), refreshHealth()]);
+    } catch (err) {
+      showAlert("synthError", err.message || String(err));
+    } finally {
+      clearInterval(genTimerHandle);
+      genTimerHandle = null;
+      $("genTimer").textContent = "";
+      $("generateBtn").disabled = false;
+    }
+  });
+
+  refreshHealth();
+  refreshVoices();
+  refreshOutputs();
+  setInterval(refreshHealth, 4000);
+})();
+</script>
+</body>
+</html>

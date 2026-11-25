@@ -1,0 +1,19 @@
+{
+  "id": "01-zero-shot",
+  "file": "samples/01-zero-shot.wav",
+  "voice_name": "No Reference (Default)",
+  "text": "Wait-seriously? You unlocked an RTX 3060 on NixOS, wired up a fresh neural speech engine from scratch, and now it's talking straight through your headset? Honestly, that's pretty awesome.",
+  "temperature": 0.75,
+  "top_p": 0.9,
+  "top_k": 50,
+  "max_new_tokens": 1024,
+  "seed": 559131312,
+  "greedy": false,
+  "auto_retry": true,
+  "duration_sec": 15.19,
+  "elapsed_sec": 11.77,
+  "rtf": 0.775,
+  "code_frames": 327,
+  "sample_rate": 44100,
+  "hardware": "NVIDIA GeForce RTX 3060 12GB (NixOS, bfloat16)"
+}
